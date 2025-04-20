@@ -38,7 +38,7 @@ jobs:
       - name: Wait for .app folder
         run: |
           for i in {1..9999}; do
-            if ls target/*.app >/dev/null 2>&1; then
+            if ls target/gluonfx/*/*.app >/dev/null 2>&1; then
               echo ".app folder found"
               break
             fi
