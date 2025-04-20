@@ -2,25 +2,9 @@ name: Cross-Platform Native Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ]  # Hier den Branch auf 'main' geändert
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup GraalVM
-        uses: gluonhq/setup-graalvm@master
-        with:
-          graalvm: '22.1.0.1-Final'
-          jdk: 'java17'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build (Linux)
-        run: ./mvnw gluonfx:build
-
   build-windows:
     runs-on: windows-latest
     steps:
@@ -36,7 +20,7 @@ jobs:
         uses: gluonhq/setup-graalvm@master
         with:
           graalvm: '22.1.0.1-Final'
-          jdk: 'java17'
+          jdk: 'java21'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -53,7 +37,7 @@ jobs:
         uses: gluonhq/setup-graalvm@master
         with:
           graalvm: '22.1.0.1-Final'
-          jdk: 'java17'
+          jdk: 'java21'
           arch: 'aarch64'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
