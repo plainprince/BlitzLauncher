@@ -33,8 +33,12 @@ jobs:
       - name: Set up Microsoft Build Tools (Windows only)
         if: runner.os == 'Windows'
         run: |
-          choco install visualstudio2022buildtools --version=17.8.4 --ignore-checksums -y
+          choco install visualstudio2022buildtools --ignore-checksums -y
           setx PATH "%PATH%;C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\*\bin\Hostx64\x64"
+
+      - name: Verify compiler availability
+        if: runner.os == 'Windows'
+        run: where cl || echo "Compiler not found in PATH"
 
       - name: Build native image
         run: mvn gluonfx:build
