@@ -1,0 +1,39 @@
+name: GluonFX Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup GraalVM
+      uses: graalvm/setup-graalvm@v1
+      with:
+        java-version: '21'
+        distribution: 'graalvm'
+        components: 'native-image'
+
+    - name: Make mvnw executable (Unix)
+      if: runner.os != 'Windows'
+      run: chmod +x mvnw
+
+    - name: Build native image
+      run: ./mvnw gluonfx:build
+
+    - name: Zip result
+      run: |
+        mkdir build
+        zip -r build/${{ runner.os }}-build.zip target/gluonfx/**/gvm/**
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ runner.os }}-app
+        path: build/${{ runner.os }}-build.zip
