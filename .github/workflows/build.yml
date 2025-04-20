@@ -19,7 +19,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build (Linux)
-        run: ./mvnw -Pdesktop gluonfx:build
+        run: ./mvnw gluonfx:build
 
   build-windows:
     runs-on: windows-latest
@@ -42,7 +42,7 @@ jobs:
 
       - name: Build (Windows)
         shell: cmd
-        run: .\mvnw -Pdesktop gluonfx:build
+        run: .\mvnw gluonfx:build
 
   build-macos:
     runs-on: macos-latest
@@ -59,7 +59,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build (macOS)
-        run: ./mvnw -Pdesktop gluonfx:build
+        run: ./mvnw gluonfx:build
 
       - name: Create DMG
         run: ./package-dmg.sh
