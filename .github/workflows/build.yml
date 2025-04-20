@@ -2,7 +2,7 @@ name: Cross-Platform Native Build
 
 on:
   push:
-    branches: [ main ]  # Hier den Branch auf 'main' geändert
+    branches: [ main ]
 
 jobs:
   build-windows:
@@ -19,7 +19,7 @@ jobs:
       - name: Setup GraalVM
         uses: gluonhq/setup-graalvm@master
         with:
-          graalvm: '22.1.0.1-Final'
+          graalvm: '21.0.2+13'  # Updated to latest JDK 21 version
           jdk: 'java21'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -36,7 +36,7 @@ jobs:
       - name: Setup GraalVM
         uses: gluonhq/setup-graalvm@master
         with:
-          graalvm: '22.1.0.1-Final'
+          graalvm: '21.0.2+13'  # Updated to latest JDK 21 version
           jdk: 'java21'
           arch: 'aarch64'
         env:
