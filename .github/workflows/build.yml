@@ -1,84 +1,65 @@
-name: Native Build
+name: Cross-Platform Native Build
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ master ]
 
 jobs:
-  build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-2019, macos-latest]
-
+  build-linux:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up GraalVM JDK 21
-        uses: graalvm/setup-graalvm@v1
+      - name: Setup GraalVM
+        uses: gluonhq/setup-graalvm@master
         with:
-          java-version: '21'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          cache: 'maven'
+          graalvm: '22.1.0.1-Final'
+          jdk: 'java17'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Verify Java
-        run: java -version
+      - name: Build (Linux)
+        run: ./mvnw -Pdesktop gluonfx:build
 
-      # Windows-specific setup (No choco needed)
-      - name: Add Visual Studio Build Tools to PATH (Windows only)
-        if: runner.os == 'Windows'
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Visual Studio shell
+        uses: egor-tensin/vs-shell@v1
+
+      - name: Setup GraalVM
+        uses: gluonhq/setup-graalvm@master
+        with:
+          graalvm: '22.1.0.1-Final'
+          jdk: 'java17'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build (Windows)
         shell: cmd
-        run: |
-          for /f "delims=" %%i in ('dir /b /ad "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC"') do set "MSVC_VERSION=%%i"
-          set "MSVC_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\%MSVC_VERSION%\bin\Hostx64\x64"
-          echo PATH=%MSVC_PATH%;%PATH%
-          echo "PATH=%MSVC_PATH%;%PATH%" >> %GITHUB_ENV%
+        run: .\mvnw -Pdesktop gluonfx:build
 
-      - name: Verify compiler availability
-        if: runner.os == 'Windows'
-        run: |
-          echo %PATH%
-          where cl || echo "❌ Compiler not found in PATH"
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      # Native build for both platforms
-      - name: Build native image
-        run: mvn gluonfx:build
-
-      # Wait for the .app to be generated (macOS)
-      - name: Wait for .app generation (macOS only)
-        if: runner.os == 'macOS'
-        run: |
-          while [ ! -d "target/gluonfx/aarch64-darwin/minecraft-launcher.app" ]; do
-            echo "Waiting for .app to be generated..."
-            sleep 10
-          done
-          echo ".app is ready!"
-
-      # DMG creation for macOS
-      - name: Create DMG (macOS only)
-        if: runner.os == 'macOS'
-        run: |
-          chmod +x ./package-dmg.sh
-          ./package-dmg.sh
-
-      # Upload DMG (macOS)
-      - name: Upload DMG artifact (macOS only)
-        if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
+      - name: Setup GraalVM
+        uses: gluonhq/setup-graalvm@master
         with:
-          name: macOS-DMG
-          path: target/dist/minecraft-launcher.dmg
+          graalvm: '22.1.0.1-Final'
+          jdk: 'java17'
+          arch: 'aarch64'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload native Windows build
-      - name: Upload Windows Native EXE
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: Windows-Native-Build
-          path: target/gluonfx/x86_64-windows/gvm/
+      - name: Build (macOS)
+        run: ./mvnw -Pdesktop gluonfx:build
+
+      - name: Create DMG
+        run: ./package-dmg.sh
