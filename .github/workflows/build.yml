@@ -30,18 +30,18 @@ jobs:
       - name: Verify Java
         run: java -version
 
+      # Windows-specific setup
       - name: Set up Microsoft Build Tools (Windows only)
         if: runner.os == 'Windows'
         run: |
           choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools" --ignore-checksums -y
 
-      - name: Add Visual Studio tools to PATH
+      - name: Add Visual Studio tools to PATH (Windows only)
         if: runner.os == 'Windows'
         shell: cmd
         run: |
           for /f "delims=" %%i in ('dir /b /ad "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC"') do set "MSVC_VERSION=%%i"
           set "MSVC_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\%MSVC_VERSION%\bin\Hostx64\x64"
-          echo MSVC_PATH=%MSVC_PATH%
           echo PATH=%MSVC_PATH%;%PATH%
           echo "PATH=%MSVC_PATH%;%PATH%" >> %GITHUB_ENV%
 
@@ -49,7 +49,31 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           echo %PATH%
-          where cl || echo "Compiler not found in PATH"
+          where cl || echo "❌ Compiler not found in PATH"
 
+      # Native build for both platforms
       - name: Build native image
         run: mvn gluonfx:build
+
+      # DMG creation for macOS
+      - name: Create DMG (macOS only)
+        if: runner.os == 'macOS'
+        run: |
+          chmod +x ./package-dmg.sh
+          ./package-dmg.sh
+
+      # Upload DMG (macOS)
+      - name: Upload DMG artifact (macOS only)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS-DMG
+          path: target/dist/minecraft-launcher.dmg
+
+      # Upload native Windows build
+      - name: Upload Windows Native EXE
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-Native-Build
+          path: target/gluonfx/x86_64-windows/gvm/
