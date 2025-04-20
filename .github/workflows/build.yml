@@ -37,8 +37,13 @@ jobs:
 
       - name: Add Visual Studio tools to PATH
         if: runner.os == 'Windows'
+        shell: cmd
         run: |
-          set PATH=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\<version>\bin\Hostx64\x64;%PATH%
+          for /f "delims=" %%i in ('dir /b /ad "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC"') do set "MSVC_VERSION=%%i"
+          set "MSVC_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\%MSVC_VERSION%\bin\Hostx64\x64"
+          echo MSVC_PATH=%MSVC_PATH%
+          echo PATH=%MSVC_PATH%;%PATH%
+          echo "PATH=%MSVC_PATH%;%PATH%" >> %GITHUB_ENV%
 
       - name: Verify compiler availability
         if: runner.os == 'Windows'
