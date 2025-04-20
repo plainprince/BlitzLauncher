@@ -1,0 +1,67 @@
+[21:59:56] [Datafixer Bootstrap/INFO]: 263 Datafixer optimizations took 574 milliseconds
+[21:59:58] [Render thread/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[21:59:58] [Render thread/INFO]: Setting user: dev
+[21:59:58] [Render thread/INFO]: Backend library: LWJGL version 3.3.3+5
+[21:59:59] [Download-2/ERROR]: Failed to fetch user properties
+com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:59) ~[authlib-6.0.58.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:150) ~[authlib-6.0.58.jar:?]
+	at fqq.bN(SourceFile:454) ~[1.21.5.jar:?]
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?]
+Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:103) ~[authlib-6.0.58.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:56) ~[authlib-6.0.58.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:121) ~[authlib-6.0.58.jar:?]
+	... 5 more
+[21:59:59] [Render thread/INFO]: Using optional rendering extensions: 
+[21:59:59] [Render thread/INFO]: Reloading ResourceManager: vanilla
+[21:59:59] [Worker-Main-6/INFO]: Found unifont_all_no_pua-16.0.01.hex, loading
+[21:59:59] [Download-2/INFO]: Could not authorize you against Realms server: Invalid session id
+[21:59:59] [Download-2/ERROR]: Failed to fetch Realms feature flags
+fnm: Realms authentication error with message 'Invalid session id'
+	at flq.a(SourceFile:495) ~[1.21.5.jar:?]
+	at flq.n(SourceFile:177) ~[1.21.5.jar:?]
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?]
+[21:59:59] [Worker-Main-1/INFO]: Found unifont_jp_patch-16.0.01.hex, loading
+[22:00:00] [Render thread/WARN]: Found unknown and unsupported uniform Sampler1 in minecraft:pipeline/armor_decal_cutout_no_cull
+[22:00:00] [Render thread/WARN]: Found unknown and unsupported uniform Sampler1 in minecraft:pipeline/armor_translucent
+[22:00:00] [Render thread/WARN]: Found unknown and unsupported uniform Sampler2 in minecraft:pipeline/eyes
+[22:00:00] [Render thread/WARN]: Found unknown and unsupported uniform Sampler1 in minecraft:pipeline/eyes
+[22:00:00] [Render thread/WARN]: Found unknown and unsupported uniform Sampler1 in minecraft:pipeline/armor_cutout_no_cull
+[22:00:00] [Render thread/WARN]: Found unknown and unsupported uniform Sampler1 in minecraft:pipeline/entity_no_outline
+[22:00:00] [Render thread/WARN]: Found unknown and unsupported uniform Sampler1 in minecraft:pipeline/breeze_wind
+[22:00:00] [Render thread/WARN]: Found unknown and unsupported uniform Sampler2 in minecraft:pipeline/energy_swirl
+[22:00:00] [Render thread/WARN]: Found unknown and unsupported uniform Sampler1 in minecraft:pipeline/energy_swirl
+[22:00:00] [Render thread/INFO]: OpenAL initialized on device MacBook Pro-Lautsprecher
+[22:00:00] [Render thread/INFO]: Sound engine started
+[22:00:00] [Render thread/INFO]: Created: 1024x512x4 minecraft:textures/atlas/blocks.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 2048x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 64x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 256x128x0 minecraft:textures/atlas/mob_effects.png-atlas
+[22:00:00] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/gui.png-atlas
+[22:00:00] [IO-Worker-1/INFO]: Could not authorize you against Realms server: Invalid session id
+[22:00:00] [IO-Worker-1/ERROR]: Couldn't connect to realms
+fnm: Realms authentication error with message 'Invalid session id'
+	at flq.a(SourceFile:495) ~[1.21.5.jar:?]
+	at flq.h(SourceFile:278) ~[1.21.5.jar:?]
+	at flk.c(SourceFile:51) ~[1.21.5.jar:?]
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?]
+[22:00:09] [Render thread/INFO]: Stopping!

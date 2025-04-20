@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.linkum.simeon.minecraftlauncher.LoginController">
+    <children>
+        <VBox alignment="CENTER" spacing="10.0" layoutX="100.0" layoutY="100.0">
+            <Button fx:id="loginButton" text="Login with microsoft" onAction="#onLoginClicked"/>
+            <Label fx:id="loginInstructionLabel" layoutX="14" layoutY="120" text=" " />
+            <Hyperlink fx:id="loginLink" onAction="#onLoginLinkClicked"/>
+            <Button fx:id="startMinecraftButton" text="Launch minecraft" onAction="#onMinecraftLaunch" visible="false"/>
+        </VBox>
+    </children>
+</AnchorPane>
