@@ -16,13 +16,16 @@ jobs:
       - name: Visual Studio shell
         uses: egor-tensin/vs-shell@v1
 
-      - name: Setup GraalVM
-        uses: gluonhq/setup-graalvm@master
-        with:
-          graalvm: '21.0.2+13'  # Updated to latest JDK 21 version
-          jdk: 'java21'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download GraalVM
+        run: |
+          curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/v23.1.2/graalvm-ce-java21-linux-amd64-23.1.2.tar.gz -o graalvm.tar.gz
+          tar -xvzf graalvm.tar.gz
+          sudo mv graalvm-ce-java21-23.1.2 /opt/graalvm
+
+      - name: Set GraalVM environment variables
+        run: |
+          echo "GRAALVM_HOME=/opt/graalvm" >> $GITHUB_ENV
+          echo "$GRAALVM_HOME/bin" >> $GITHUB_PATH
 
       - name: Build (Windows)
         shell: cmd
@@ -33,14 +36,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup GraalVM
-        uses: gluonhq/setup-graalvm@master
-        with:
-          graalvm: '21.0.2+13'  # Updated to latest JDK 21 version
-          jdk: 'java21'
-          arch: 'aarch64'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download GraalVM
+        run: |
+          curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/v23.1.2/graalvm-ce-java21-darwin-aarch64-23.1.2.tar.gz -o graalvm.tar.gz
+          tar -xvzf graalvm.tar.gz
+          sudo mv graalvm-ce-java21-23.1.2 /opt/graalvm
+
+      - name: Set GraalVM environment variables
+        run: |
+          echo "GRAALVM_HOME=/opt/graalvm" >> $GITHUB_ENV
+          echo "$GRAALVM_HOME/bin" >> $GITHUB_PATH
 
       - name: Build (macOS)
         run: ./mvnw gluonfx:build
