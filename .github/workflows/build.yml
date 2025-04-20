@@ -1,4 +1,4 @@
-name: Cross-Platform Native Build
+name: GraalVM Native Build
 
 on:
   push:
@@ -10,45 +10,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.2
+      - name: Setup GraalVM for JDK 21
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'  # Ensure you're using GraalVM for Java 21
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Visual Studio shell
-        uses: egor-tensin/vs-shell@v1
-
-      - name: Download GraalVM
-        run: |
-          curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/v23.1.2/graalvm-ce-java21-linux-amd64-23.1.2.tar.gz -o graalvm.tar.gz
-          tar -xvzf graalvm.tar.gz
-          sudo mv graalvm-ce-java21-23.1.2 /opt/graalvm
-
-      - name: Set GraalVM environment variables
-        run: |
-          echo "GRAALVM_HOME=/opt/graalvm" >> $GITHUB_ENV
-          echo "$GRAALVM_HOME/bin" >> $GITHUB_PATH
-
-      - name: Build (Windows)
-        shell: cmd
-        run: .\mvnw gluonfx:build
+      - name: Build Windows Native Image
+        run: mvn clean package
 
   build-macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download GraalVM
-        run: |
-          curl -L https://github.com/graalvm/graalvm-ce-builds/releases/download/v23.1.2/graalvm-ce-java21-darwin-aarch64-23.1.2.tar.gz -o graalvm.tar.gz
-          tar -xvzf graalvm.tar.gz
-          sudo mv graalvm-ce-java21-23.1.2 /opt/graalvm
+      - name: Setup GraalVM for JDK 21 (macOS)
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set GraalVM environment variables
-        run: |
-          echo "GRAALVM_HOME=/opt/graalvm" >> $GITHUB_ENV
-          echo "$GRAALVM_HOME/bin" >> $GITHUB_PATH
+      - name: Build macOS Native Image
+        run: mvn clean package
 
-      - name: Build (macOS)
-        run: ./mvnw gluonfx:build
-
-      - name: Create DMG
+      - name: Create DMG (macOS)
         run: ./package-dmg.sh
