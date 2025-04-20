@@ -27,24 +27,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'maven'
 
-      - name: Verify Java
-        run: java -version
-
-      # Windows-specific setup
-      - name: Set up Microsoft Build Tools (Windows only)
-        if: runner.os == 'Windows'
-        run: |
-          choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools" --ignore-checksums -y
-
-      - name: Add Visual Studio tools to PATH (Windows only)
-        if: runner.os == 'Windows'
-        shell: cmd
-        run: |
-          for /f "delims=" %%i in ('dir /b /ad "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC"') do set "MSVC_VERSION=%%i"
-          set "MSVC_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\%MSVC_VERSION%\bin\Hostx64\x64"
-          echo PATH=%MSVC_PATH%;%PATH%
-          echo "PATH=%MSVC_PATH%;%PATH%" >> %GITHUB_ENV%
-
       - name: Verify compiler availability
         if: runner.os == 'Windows'
         run: |
@@ -54,6 +36,16 @@ jobs:
       # Native build for both platforms
       - name: Build native image
         run: mvn gluonfx:build
+
+      # Wait for the .app to be generated (macOS)
+      - name: Wait for .app generation (macOS only)
+        if: runner.os == 'macOS'
+        run: |
+          while [ ! -d "target/gluonfx/aarch64-darwin/minecraft-launcher.app" ]; do
+            echo "Waiting for .app to be generated..."
+            sleep 10
+          done
+          echo ".app is ready!"
 
       # DMG creation for macOS
       - name: Create DMG (macOS only)
