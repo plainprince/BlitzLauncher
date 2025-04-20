@@ -33,7 +33,27 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build macOS Native Image
-        run: mvn clean package
+        run: ./mvnw gluonfx:build
 
-      - name: Create DMG (macOS)
-        run: ./package-dmg.sh
+      - name: Wait for .app folder
+        run: |
+          for i in {1..30}; do
+            if ls target/*.app >/dev/null 2>&1; then
+              echo ".app folder found"
+              break
+            fi
+            echo "Waiting for .app folder..."
+            sleep 2
+          done
+
+      - name: Make script executable
+        run: chmod +x ./package-dmg.sh
+
+      - name: Run DMG creation script
+        run: sh ./package-dmg.sh
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-dmg
+          path: target/*.dmg
