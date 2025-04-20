@@ -30,5 +30,11 @@ jobs:
       - name: Verify Java
         run: java -version
 
+      - name: Set up Microsoft Build Tools (Windows only)
+        if: runner.os == 'Windows'
+        run: |
+          choco install visualstudio2022buildtools --version=17.8.4 --ignore-checksums -y
+          setx PATH "%PATH%;C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\*\bin\Hostx64\x64"
+
       - name: Build native image
         run: mvn gluonfx:build
