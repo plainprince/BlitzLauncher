@@ -34,7 +34,6 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           choco install visualstudio2022buildtools --ignore-checksums -y
-          setx PATH "%PATH%;C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\*\bin\Hostx64\x64"
 
       - name: Verify compiler availability
         if: runner.os == 'Windows'
