@@ -69,12 +69,12 @@ jobs:
           path: |
             target/dist/*.dmg
 
-  build-linux:
+  build-jar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup GraalVM for JDK 21 (macOS)
+      - name: Setup GraalVM for JDK 21
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21'
@@ -82,14 +82,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install libraries
-        run: sudo apt install libasound2-dev libavcodec-dev libavformat-dev libavutil-dev libgl-dev libgtk-3-dev libpango1.0-dev libxtst-dev
+        run: sudo apt install -y libasound2-dev libavcodec-dev libavformat-dev libavutil-dev libgl-dev libgtk-3-dev libpango1.0-dev libxtst-dev
 
-      - name: Build linux Native Image
-        run: ./mvnw gluonfx:build
+      - name: Build JAR file
+        run: mvn clean package
 
-      - name: Upload executable artifact
+      - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ubuntu-x64
-          path: |
-            target/gluonfx/*/minecraft-launcher*
+          name: minecraft-launcher-jar
+          path: target/minecraft-launcher-1.0-SNAPSHOT.jar
