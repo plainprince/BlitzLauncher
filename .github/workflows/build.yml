@@ -17,18 +17,25 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Developer Command Prompt for cl.exe
-        shell: cmd
-        run: choco install visualstudio2022buildtools --ignore-checksums -y
-             setx PATH "%PATH%;C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\*\bin\Hostx64\x64"
-        continue-on-error: false
-
-      - name: Set up Visual Studio Developer Command Prompt
+      - name: Install Visual Studio 2022 Build Tools
+        shell: pwsh
+        run: |
+          # Download Visual Studio Build Tools Installer
+          Invoke-RestMethod -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
+          # Install Visual Studio Build Tools with C++ and Windows SDK components
+          Start-Process -FilePath vs_buildtools.exe -ArgumentList "--add", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64", "--add", "Microsoft.VisualStudio.Component.Windows10SDK.19041", "--norestart", "--passive", "--wait" -Wait -PassThru
+          # Remove installer
+          Remove-Item vs_buildtools.exe
+          
+      - name: Set up Visual Studio environment
         shell: cmd
         run: |
-          FOR /F "usebackq tokens=*" %%i IN (`vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products * -property installationPath`) DO (
-            CALL "%%i\VC\Auxiliary\Build\vcvars64.bat"
-          )
+          call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+
+      - name: Verify Visual Studio Installation
+        shell: cmd
+        run: |
+          where cl
 
       - name: Build Windows Native Image
         shell: cmd
