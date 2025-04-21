@@ -42,4 +42,4 @@ jobs:
         with:
           name: ${{ runner.os == 'macOS' && 'macos-arm64' || (runner.os == 'Windows' && 'windows-x64' || 'linux-x64') }}
           path: |
-            dist/*.zip
+            *.zip
