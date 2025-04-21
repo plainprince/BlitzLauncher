@@ -81,34 +81,15 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build macOS Native Image
+      - name: Install libraries
+        run: sudo apt install libasound2-dev libavcodec-dev libavformat-dev libavutil-dev libgl-dev libgtk-3-dev libpango1.0-dev libxtst-dev
+
+      - name: Build linux Native Image
         run: ./mvnw gluonfx:build
 
       - name: Upload .dmg artifact
         uses: actions/upload-artifact@v4
         with:
           name: ubuntu-x64
-          path: |
-            target/gluonfx/*/minecraft-launcher*
-
-  build-linux-arm:
-    runs-on: ubuntu-arm64
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup GraalVM for JDK 21 (macOS)
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '21'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build macOS Native Image
-        run: ./mvnw gluonfx:build
-
-      - name: Upload .dmg artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ubuntu-aarch64
           path: |
             target/gluonfx/*/minecraft-launcher*
