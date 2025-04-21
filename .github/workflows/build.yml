@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-2022  # Use Windows 2022 runner to ensure Visual Studio 2022 is available
+    runs-on: windows-latest  # Use Windows 2022 runner to ensure Visual Studio 2022 is available
     steps:
       - uses: actions/checkout@v4
 
@@ -19,11 +19,8 @@ jobs:
 
       - name: Setup Developer Command Prompt for cl.exe
         shell: cmd
-        run: |
-          FOR /F "usebackq tokens=*" %%i IN (`vswhere -latest -version '[17.1,18)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) DO (
-            CALL "%%i\VC\Auxiliary\Build\vcvars64.bat"
-            cl
-          )
+        run: choco install visualstudio2022buildtools --ignore-checksums -y
+             setx PATH "%PATH%;C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\*\bin\Hostx64\x64"
         continue-on-error: false
 
       - name: Verify Visual Studio Installation
