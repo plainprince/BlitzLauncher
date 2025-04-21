@@ -6,21 +6,21 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022  # Use Windows 2022 runner to ensure Visual Studio 2022 is available
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup GraalVM for JDK 21
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'  # Ensure you're using GraalVM for Java 21
+          java-version: '21'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Developer Command Prompt for cl.exe
         shell: cmd
         run: |
-          FOR /F "usebackq tokens=*" %%i IN (`vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products * -property installationPath`) DO (
+          FOR /F "usebackq tokens=*" %%i IN (`vswhere -latest -version '[17.1,18)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) DO (
             CALL "%%i\VC\Auxiliary\Build\vcvars64.bat"
             cl
           )
@@ -29,12 +29,12 @@ jobs:
       - name: Verify Visual Studio Installation
         shell: cmd
         run: |
-          vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products *
+          vswhere -latest -version '[17.1,18)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products *
 
       - name: Build Windows Native Image
         shell: cmd
         run: |
-          FOR /F "usebackq tokens=*" %%i IN (`vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products * -property installationPath`) DO (
+          FOR /F "usebackq tokens=*" %%i IN (`vswhere -latest -version '[17.1,18)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) DO (
             CALL "%%i\VC\Auxiliary\Build\vcvars64.bat" && mvn gluonfx:build
           )
 
