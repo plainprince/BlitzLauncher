@@ -23,17 +23,16 @@ jobs:
              setx PATH "%PATH%;C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\*\bin\Hostx64\x64"
         continue-on-error: false
 
-      - name: Verify Visual Studio Installation
+      - name: Set up Visual Studio Developer Command Prompt
         shell: cmd
         run: |
-          vswhere -latest -version '[17.1,18)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products *
+          FOR /F "usebackq tokens=*" %%i IN (`vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products * -property installationPath`) DO (
+            CALL "%%i\VC\Auxiliary\Build\vcvars64.bat"
+          )
 
       - name: Build Windows Native Image
         shell: cmd
-        run: |
-          FOR /F "usebackq tokens=*" %%i IN (`vswhere -latest -version '[17.1,18)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) DO (
-            CALL "%%i\VC\Auxiliary\Build\vcvars64.bat" && mvn gluonfx:build
-          )
+        run: mvn gluonfx:build
 
       - name: Upload .exe artifact
         uses: actions/upload-artifact@v4
