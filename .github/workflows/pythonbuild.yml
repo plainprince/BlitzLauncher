@@ -30,13 +30,12 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           zip -r ${{ runner.os == 'Linux' && 'linux-x64.zip' || 'macos-arm64.zip' }} dist/launch dist/lib
-          
-          # Windows: use PowerShell
-          - name: Compress for Windows
-            if: runner.os == 'Windows'
-            shell: pwsh
-            run: |
-              Compress-Archive -Path dist\launch, dist\lib -DestinationPath windows-x64.zip
+
+      - name: Compress for Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist\launch, dist\lib -DestinationPath windows-x64.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
