@@ -17,6 +17,17 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install Visual Studio 2022 Build Tools
+        run: choco install visualstudio2022buildtools --yes --ignore-checksums
+
+      - name: Install Visual C++ Build Tools workload
+        run: choco install visualstudio2022-workload-vctools --yes --ignore-checksums
+
+      - name: Set up Visual Studio environment
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+
       - name: Build Windows Native Image
         shell: cmd
         run: mvn gluonfx:build
