@@ -1,0 +1,48 @@
+name: Build cx_Freeze Executables
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install cx-Freeze
+
+      - name: Compile with cx_Freeze
+        run: cxfreeze --script launch.py --target-dir dist
+
+      - name: Zip executable
+        run: |
+          mkdir release
+          OS_NAME="${{ runner.os }}"
+          if [[ "$OS_NAME" == "Linux" ]]; then
+            ZIP_NAME="linux-x64"
+          elif [[ "$OS_NAME" == "macOS" ]]; then
+            ZIP_NAME="macos-arm64"
+          elif [[ "$OS_NAME" == "Windows" ]]; then
+            ZIP_NAME="windows-x64"
+          fi
+          zip -r "release/$ZIP_NAME.zip" dist/
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os == 'macOS' && 'macos-arm64' || (runner.os == 'Windows' && 'windows-x64' || 'linux-x64') }}
+          path: |
+            release/*.zip
