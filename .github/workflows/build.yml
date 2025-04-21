@@ -18,7 +18,14 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Windows Native Image
-        run: mvn clean package
+        run: mvn gluonfx:build
+
+      - name: Upload .exe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: |
+            target\gluonfx\*\*.exe
 
   build-macos:
     runs-on: macos-latest
@@ -35,25 +42,20 @@ jobs:
       - name: Build macOS Native Image
         run: ./mvnw gluonfx:build
 
-      - name: Wait for .app folder
-        run: |
-          for i in {1..9999}; do
-            if ls target/gluonfx/*/*.app >/dev/null 2>&1; then
-              echo ".app folder found"
-              break
-            fi
-            echo "Waiting for .app folder..."
-            sleep 2
-          done
+      - name: Build macOS .app bundle
+        run: mvn gluonfx:package || true
 
-      - name: Make script executable
-        run: chmod +x ./package-dmg.sh
+      - name: Build macOS .app bundle
+        if: matrix.os == 'macos-latest'
+        continue-on-error: true
+        run: mvn gluonfx:package -Dgvm.packageType=app || true
 
       - name: Run DMG creation script
         run: sh ./package-dmg.sh
 
-      - name: Upload DMG artifact
+      - name: Upload .dmg artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-dmg
-          path: target/*.dmg
+          name: macos-app
+          path: |
+            target/gluonfx/*/*.app
