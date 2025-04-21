@@ -32,7 +32,11 @@ jobs:
           vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products *
 
       - name: Build Windows Native Image
-        run: call "%%i\VC\Auxiliary\Build\vcvars64.bat" && mvn gluonfx:build
+        shell: cmd
+        run: |
+          FOR /F "usebackq tokens=*" %%i IN (`vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products * -property installationPath`) DO (
+            CALL "%%i\VC\Auxiliary\Build\vcvars64.bat" && mvn gluonfx:build
+          )
 
       - name: Upload .exe artifact
         uses: actions/upload-artifact@v4
