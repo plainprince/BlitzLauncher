@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-windows:
-    runs-on: windows-latest  # Use Windows 2022 runner to ensure Visual Studio 2022 is available
+    runs-on: windows-2019
     steps:
       - uses: actions/checkout@v4
 
@@ -16,26 +16,6 @@ jobs:
           java-version: '21'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install Visual Studio 2022 Build Tools
-        shell: pwsh
-        run: |
-          # Download Visual Studio Build Tools Installer
-          Invoke-RestMethod -Uri https://aka.ms/vs/17/release/vs_buildtools.exe -OutFile vs_buildtools.exe
-          # Install Visual Studio Build Tools with C++ and Windows SDK components
-          Start-Process -FilePath vs_buildtools.exe -ArgumentList "--add", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64", "--add", "Microsoft.VisualStudio.Component.Windows10SDK.19041", "--norestart", "--passive", "--wait" -Wait -PassThru
-          # Remove installer
-          Remove-Item vs_buildtools.exe
-          
-      - name: Set up Visual Studio environment
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
-
-      - name: Verify Visual Studio Installation
-        shell: cmd
-        run: |
-          where cl
 
       - name: Build Windows Native Image
         shell: cmd
