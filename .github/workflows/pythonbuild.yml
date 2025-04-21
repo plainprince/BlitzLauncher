@@ -2,7 +2,6 @@ name: Build cx_Freeze Executables
 
 on:
   push:
-    branches: [ main ]
   pull_request:
 
 jobs:
