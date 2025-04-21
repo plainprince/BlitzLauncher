@@ -26,19 +26,17 @@ jobs:
       - name: Compile with cx_Freeze
         run: cxfreeze --script launch.py --target-dir dist
 
-      - name: Zip executable
+      - name: Compress for Linux/macOS
+        if: runner.os != 'Windows'
         run: |
-          mkdir release
-          OS_NAME="${{ runner.os }}"
-          if [[ "$OS_NAME" == "Linux" ]]; then
-            ZIP_NAME="linux-x64"
-          elif [[ "$OS_NAME" == "macOS" ]]; then
-            ZIP_NAME="macos-arm64"
-          elif [[ "$OS_NAME" == "Windows" ]]; then
-            ZIP_NAME="windows-x64"
-          fi
-          zip -r "release/$ZIP_NAME.zip" dist/
-        shell: bash
+          zip -r ${{ runner.os == 'Linux' && 'linux-x64.zip' || 'macos-arm64.zip' }} dist/launch dist/lib
+          
+          # Windows: use PowerShell
+          - name: Compress for Windows
+            if: runner.os == 'Windows'
+            shell: pwsh
+            run: |
+              Compress-Archive -Path dist\launch, dist\lib -DestinationPath windows-x64.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
