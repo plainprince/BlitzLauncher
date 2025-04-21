@@ -8,28 +8,26 @@ jobs:
   build-windows:
     runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup GraalVM for JDK 21
+      - name: Set up GraalVM 21
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Visual Studio 2022 Build Tools
-        run: choco install visualstudio2022buildtools --yes --ignore-checksums
-
-      - name: Install Visual C++ Build Tools workload
-        run: choco install visualstudio2022-workload-vctools --yes --ignore-checksums
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Set up Visual Studio environment
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+        uses: egor-tensin/vs-shell@v1
+        with:
+          arch: x64
 
-      - name: Build Windows Native Image
-        shell: cmd
+      - name: Build native image
         run: mvn gluonfx:build
 
       - name: Upload .exe artifact
