@@ -18,13 +18,18 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Developer Command Prompt for cl.exe
-        if: matrix.os == 'windows-latest' || matrix.os == 'windows-2019'
         shell: cmd
         run: |
           FOR /F "usebackq tokens=*" %%i IN (`vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products * -property installationPath`) DO (
             CALL "%%i\VC\Auxiliary\Build\vcvars64.bat"
             cl
           )
+        continue-on-error: false
+
+      - name: Verify Visual Studio Installation
+        shell: cmd
+        run: |
+          vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -products *
 
       - name: Build Windows Native Image
         run: mvn gluonfx:build
