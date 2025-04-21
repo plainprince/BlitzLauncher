@@ -87,7 +87,7 @@ jobs:
       - name: Build linux Native Image
         run: ./mvnw gluonfx:build
 
-      - name: Upload .dmg artifact
+      - name: Upload executable artifact
         uses: actions/upload-artifact@v4
         with:
           name: ubuntu-x64
