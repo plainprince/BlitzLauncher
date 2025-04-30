@@ -1,10 +1,9 @@
-name: Build cx_Freeze Executables
+name: Build PyInstaller Executables
 
 on:
   push:
   pull_request:
   workflow_dispatch:
-
 
 jobs:
   build:
@@ -21,26 +20,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install cx-Freeze
+      - name: Install PyInstaller
+        run: pip install pyinstaller
 
-      - name: Compile with cx_Freeze
-        run: cxfreeze --script launch.py --target-dir dist
+      - name: Build executable with PyInstaller
+        run: pyinstaller -y --onefile --name os launch.py
 
-      - name: Compress for Linux/macOS
-        if: runner.os != 'Windows'
-        run: |
-          zip -r ${{ runner.os == 'Linux' && 'linux-x64.zip' || 'macos-arm64.zip' }} dist/launch dist/lib
-
-      - name: Compress for Windows
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          Compress-Archive -Path dist\launch.exe, dist\lib -DestinationPath windows-x64.zip
-
-      - name: Upload artifact
+      - name: Upload executable
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os == 'macOS' && 'macos-arm64' || (runner.os == 'Windows' && 'windows-x64' || 'linux-x64') }}
-          path: |
-            *.zip
+          name: ${{ runner.os == 'Windows' && 'windows-x64' || (runner.os == 'macOS' && 'macos-arm64' || 'linux-x64') }}
+          path: dist/os${{ runner.os == 'Windows' && '.exe' || '' }}
