@@ -24,7 +24,7 @@ jobs:
         run: pip install pyinstaller
 
       - name: Install minecraft-launcher-lib
-        run: pip install minecraft-launcher-lib
+        run: pip install minecraft-launcher-lib==7.1
 
       - name: Build executable with PyInstaller
         run: pyinstaller -y --onefile --name os launch.py
