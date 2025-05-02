@@ -36,7 +36,7 @@ def main():
     }
 
     # Minecraft-Startbefehl holen
-    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command("1.21.5", minecraft_directory, options)
+    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command("fabric-loader-0.16.14-1.21.5", minecraft_directory, options)
     print(" ".join(minecraft_command))  # Kommando ausgeben
     subprocess.run(minecraft_command)  # Minecraft starten
 
