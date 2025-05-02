@@ -9,6 +9,7 @@ def parse_arguments():
     parser.add_argument('--uuid', type=str, required=True, help='MCID (UUID) der Person')
     parser.add_argument('--name', type=str, required=True, help='Name des Spielers')
     parser.add_argument('--launch-only', action='store_true', help='Nur Spiel starten, keine Installation')
+    parser.add_argument('--install-only', action='store_true', help="Nur Spiel installieren, kein Starten")
     return parser.parse_args()
 
 # Zufälliges Token generieren (kann auch immer 0 sein, wenn gewünscht)
@@ -27,6 +28,9 @@ def main():
 
     if not args.launch_only:
         minecraft_launcher_lib.fabric.install_fabric("1.21.5", minecraft_directory)
+
+    if args.install_only:
+        return
 
     # Optionen für den Launcher
     options = {
