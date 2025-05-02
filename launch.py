@@ -22,6 +22,9 @@ def main():
     # Minecraft-Verzeichnis
     minecraft_directory = "./minecraft"
 
+
+    print(minecraft_launcher_lib.fabric.get_latest_minecraft_version())
+
     if not args.launch_only:
         minecraft_launcher_lib.fabric.install_fabric("1.21.5", minecraft_directory)
 
