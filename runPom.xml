@@ -43,6 +43,11 @@
       <artifactId>commons-compress</artifactId>
       <version>1.26.1</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.10.1</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -86,7 +91,7 @@
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>de.deinpaket.Main</mainClass>
+                  <mainClass>de.linkum.simeon.minecratlauncher.Main</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -99,6 +104,7 @@
         <version>1.0.26</version>
         <configuration>
           <mainClass>de.linkum.simeon.minecraftlauncher.Main</mainClass>
+          <target>host</target>
         </configuration>
       </plugin>
     </plugins>

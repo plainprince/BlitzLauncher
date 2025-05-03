@@ -3,13 +3,12 @@ package de.linkum.simeon.minecraftlauncher;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Objects;
-
-import de.linkum.simeon.minecraftlauncher.LoginController;
 
 public class Main extends Application {
     @Override
@@ -24,6 +23,12 @@ public class Main extends Application {
         controller.setHostServices(getHostServices());
         controller.setScene(scene);
         controller.crackedModeActivated();
+        controller.init();
+
+        Font.loadFont(
+                getClass().getResourceAsStream("/de/linkum/simeon/minecraftlauncher/fonts/Tagesschrift.ttf"),
+                20
+        );
 
         stage.setScene(scene);
         stage.setTitle("BlitzLauncher");
