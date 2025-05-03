@@ -5,5 +5,13 @@
     "allPublicMethods": true,
     "allDeclaredMethods": true,
     "allDeclaredFields": true
+  },
+  {
+    "name": "javafx.scene.effect.DropShadow",
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "javafx.scene.effect.Effect",
+    "allDeclaredConstructors": true
   }
 ]
