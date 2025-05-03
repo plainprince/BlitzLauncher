@@ -116,15 +116,6 @@
                 <configuration>
                     <mainClass>de.linkum.simeon.minecraftlauncher.Main</mainClass>
                     <target>host</target>
-                    <reflectionList>
-                        <list>javafx.scene.effect.DropShadow</list>
-                        <list>javafx.scene.effect.Effect</list>
-                    </reflectionList>
-                    <resourcesList>
-                        <list>.*\\.fxml</list>
-                        <list>.*\\.css</list>
-                        <list>.*\\.png</list>
-                    </resourcesList>
                 </configuration>
             </plugin>
         </plugins>

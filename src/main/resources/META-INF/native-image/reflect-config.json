@@ -1,0 +1,16 @@
+[
+  {
+    "name": "de.linkum.simeon.minecraftlauncher.LoginController",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.sun.scenario.effect.impl.prism.PrMergePeer",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  }
+]
