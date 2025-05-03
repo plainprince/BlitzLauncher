@@ -52,22 +52,13 @@ jobs:
         run: ./mvnw gluonfx:build
 
       - name: Build macOS .app bundle
-        run: mvn gluonfx:package || true
+        run: ./mvnw gluonfx:package -Dgvm.packageType=app || true
 
-      - name: Build macOS .app bundle
-        if: matrix.os == 'macos-latest'
-        continue-on-error: true
-        run: mvn gluonfx:package -Dgvm.packageType=app || true
-
-      - name: Run DMG creation script
-        run: sh ./package-dmg.sh
-
-      - name: Upload .dmg artifact
+      - name: Upload .app artifact (für Nightly-Zip)
         uses: actions/upload-artifact@v4
         with:
-          name: macos-aarch64.dmg
-          path: |
-            target/dist/*.dmg
+          name: macos-aarch64.app
+          path: target/gluonfx/arm64/*.app
 
   build-jar:
     runs-on: ubuntu-latest
