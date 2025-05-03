@@ -8,9 +8,11 @@
   },
   {
     "name": "javafx.scene.effect.DropShadow",
+    "allPublicConstructors": true,
     "allDeclaredConstructors": true,
     "allPublicMethods": true,
-    "allDeclaredMethods": true
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
   },
   {
     "name": "javafx.scene.effect.Effect",
