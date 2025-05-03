@@ -52,13 +52,13 @@ jobs:
         run: ./mvnw gluonfx:build
 
       - name: Build macOS .app bundle
-        run: ./mvnw gluonfx:package -Dgvm.packageType=app || true
+        run: ./mvnw gluonfx:package || true
 
       - name: Upload .app artifact (für Nightly-Zip)
         uses: actions/upload-artifact@v4
         with:
           name: macos-aarch64.app
-          path: target/gluonfx/arm64/*.app
+          path: target/gluonfx/*/*.app
 
   build-jar:
     runs-on: ubuntu-latest
