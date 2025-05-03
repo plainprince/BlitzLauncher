@@ -2,7 +2,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.effect.DropShadow?>
-<?import javafx.scene.text.Font?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.linkum.simeon.minecraftlauncher.LoginController">
     <VBox alignment="CENTER" spacing="10.0"
