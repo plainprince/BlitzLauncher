@@ -30,9 +30,6 @@ public class Main extends Application {
                 20
         );
 
-        Class<?> keepDropShadow = javafx.scene.effect.DropShadow.class; // Keep DropShadow!
-        new javafx.scene.effect.DropShadow();
-
         stage.setScene(scene);
         stage.setTitle("BlitzLauncher");
         stage.show();
