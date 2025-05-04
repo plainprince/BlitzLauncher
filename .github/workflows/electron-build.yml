@@ -68,40 +68,53 @@ jobs:
             echo "dist/mac-arm64 directory not found!"
           fi
           
-          # Remove quarantine attributes to bypass Gatekeeper for Intel build
+          # Create directory for zip files
+          mkdir -p dist/zipped
+          
+          # Remove quarantine attributes and create zip for Intel build
           if [ -d "dist/mac/BlitzLauncher.app" ]; then
             echo "Removing quarantine attributes from Intel build"
             sudo xattr -cr dist/mac/BlitzLauncher.app
+            
+            echo "Creating zip archive for Intel build"
+            cd dist/mac
+            zip -r ../zipped/BlitzLauncher-intel.zip BlitzLauncher.app
+            cd ../..
           else
             echo "Intel build not found at expected location: dist/mac/BlitzLauncher.app"
           fi
           
-          # Remove quarantine attributes to bypass Gatekeeper for ARM build
+          # Remove quarantine attributes and create zip for ARM build
           if [ -d "dist/mac-arm64/BlitzLauncher.app" ]; then
             echo "Removing quarantine attributes from ARM build"
             sudo xattr -cr dist/mac-arm64/BlitzLauncher.app
+            
+            echo "Creating zip archive for ARM build"
+            cd dist/mac-arm64
+            zip -r ../zipped/BlitzLauncher-apple-silicon.zip BlitzLauncher.app
+            cd ../..
           else
             echo "ARM build not found at expected location: dist/mac-arm64/BlitzLauncher.app"
           fi
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           
-      # Upload macOS Intel (x64) artifact
+      # Upload macOS Intel (x64) zip artifact
       - name: Upload macOS Intel artifact
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: "BlitzLauncher-macos-intel"
-          path: dist/mac/BlitzLauncher.app
+          path: dist/zipped/BlitzLauncher-intel.zip
           if-no-files-found: warn
           
-      # Upload macOS ARM (Apple Silicon) artifact
+      # Upload macOS ARM (Apple Silicon) zip artifact  
       - name: Upload macOS ARM artifact
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: "BlitzLauncher-macos-apple-silicon"
-          path: dist/mac-arm64/BlitzLauncher.app
+          path: dist/zipped/BlitzLauncher-apple-silicon.zip
           if-no-files-found: warn
           
       - name: Package application (Linux)
