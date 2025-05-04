@@ -49,26 +49,59 @@ jobs:
           # Build .app files for both architectures
           npm run package-mac
           
-          # Remove quarantine attributes to bypass Gatekeeper
-          sudo xattr -cr dist/mac/*.app
+          # Check if app was created
+          if [ ! -d "dist/mac" ]; then
+            echo "Mac build directory not found"
+            exit 1
+          fi
           
-          # Create separate directories for each architecture
+          ls -la dist/mac/
+          
+          # Remove quarantine attributes to bypass Gatekeeper
+          sudo xattr -cr dist/mac/*.app || echo "No .app files found directly in mac directory"
+          
+          # Handle multi-architecture builds
           mkdir -p dist/mac-x64
           mkdir -p dist/mac-arm64
           
-          # Move .app files to their respective directories
-          mv dist/mac/*-x64.app dist/mac-x64/ 2>/dev/null || :
-          mv dist/mac/*-arm64.app dist/mac-arm64/ 2>/dev/null || :
-          
-          # If architecture-specific .app files don't exist, use the universal one
-          if [ ! -d "dist/mac-x64/*.app" ] && [ ! -d "dist/mac-arm64/*.app" ]; then
-            cp -r dist/mac/*.app dist/mac-x64/
-            cp -r dist/mac/*.app dist/mac-arm64/
+          # Look for architecture-specific builds
+          if [ -d "dist/mac-x64" ] && [ "$(ls -A dist/mac-x64 2>/dev/null)" ]; then
+            echo "x64 build directory already exists and has contents"
+          elif [ -d "dist/mac/BlitzLauncher-x64.app" ]; then
+            cp -r dist/mac/BlitzLauncher-x64.app dist/mac-x64/
+          elif [ -d "dist/mac/BlitzLauncher.app" ]; then
+            cp -r dist/mac/BlitzLauncher.app dist/mac-x64/BlitzLauncher-x64.app
           fi
           
+          if [ -d "dist/mac-arm64" ] && [ "$(ls -A dist/mac-arm64 2>/dev/null)" ]; then
+            echo "arm64 build directory already exists and has contents"
+          elif [ -d "dist/mac/BlitzLauncher-arm64.app" ]; then
+            cp -r dist/mac/BlitzLauncher-arm64.app dist/mac-arm64/
+          elif [ -d "dist/mac/BlitzLauncher.app" ]; then
+            cp -r dist/mac/BlitzLauncher.app dist/mac-arm64/BlitzLauncher-arm64.app
+          fi
+          
+          # Make sure we have something to zip
+          if [ ! "$(ls -A dist/mac-x64 2>/dev/null)" ] && [ ! "$(ls -A dist/mac-arm64 2>/dev/null)" ]; then
+            echo "No .app files found in architecture directories, checking main directory"
+            if [ -d "dist/mac/BlitzLauncher.app" ]; then
+              cp -r dist/mac/BlitzLauncher.app dist/mac-x64/BlitzLauncher-x64.app
+              cp -r dist/mac/BlitzLauncher.app dist/mac-arm64/BlitzLauncher-arm64.app
+            else
+              echo "No .app files found at all!"
+              find dist -type f -name "*.app" || echo "No .app files found by find"
+              ls -la dist/
+              exit 1
+            fi
+          fi
+          
+          # Remove any quarantine attributes again after copying
+          sudo xattr -cr dist/mac-x64/*.app || echo "No .app files found in x64 directory"
+          sudo xattr -cr dist/mac-arm64/*.app || echo "No .app files found in arm64 directory"
+          
           # Zip the .app files
-          cd dist/mac-x64 && zip -r ../../BlitzLauncher-x64.zip *.app && cd ../..
-          cd dist/mac-arm64 && zip -r ../../BlitzLauncher-arm64.zip *.app && cd ../..
+          cd dist/mac-x64 && zip -r ../../BlitzLauncher-x64.zip . && cd ../..
+          cd dist/mac-arm64 && zip -r ../../BlitzLauncher-arm64.zip . && cd ../..
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           
