@@ -49,68 +49,25 @@ jobs:
           # Build .app files for both architectures
           npm run package-mac
           
-          # Check if app was created
-          if [ ! -d "dist/mac" ]; then
-            echo "Mac build directory not found"
-            exit 1
-          fi
+          # Debug - show directory contents after build
+          echo "=== Contents of dist directory ==="
+          ls -la dist/ || echo "dist directory not found"
           
-          ls -la dist/mac/
+          echo "=== All directories in dist ==="
+          find dist -type d | sort
           
-          # Remove quarantine attributes to bypass Gatekeeper
-          sudo xattr -cr dist/mac/*.app || echo "No .app files found directly in mac directory"
-          
-          # Handle multi-architecture builds
-          mkdir -p dist/mac-x64
-          mkdir -p dist/mac-arm64
-          
-          # Look for architecture-specific builds
-          if [ -d "dist/mac-x64" ] && [ "$(ls -A dist/mac-x64 2>/dev/null)" ]; then
-            echo "x64 build directory already exists and has contents"
-          elif [ -d "dist/mac/BlitzLauncher-x64.app" ]; then
-            cp -r dist/mac/BlitzLauncher-x64.app dist/mac-x64/
-          elif [ -d "dist/mac/BlitzLauncher.app" ]; then
-            cp -r dist/mac/BlitzLauncher.app dist/mac-x64/BlitzLauncher-x64.app
-          fi
-          
-          if [ -d "dist/mac-arm64" ] && [ "$(ls -A dist/mac-arm64 2>/dev/null)" ]; then
-            echo "arm64 build directory already exists and has contents"
-          elif [ -d "dist/mac/BlitzLauncher-arm64.app" ]; then
-            cp -r dist/mac/BlitzLauncher-arm64.app dist/mac-arm64/
-          elif [ -d "dist/mac/BlitzLauncher.app" ]; then
-            cp -r dist/mac/BlitzLauncher.app dist/mac-arm64/BlitzLauncher-arm64.app
-          fi
-          
-          # Make sure we have something to zip
-          if [ ! "$(ls -A dist/mac-x64 2>/dev/null)" ] && [ ! "$(ls -A dist/mac-arm64 2>/dev/null)" ]; then
-            echo "No .app files found in architecture directories, checking main directory"
-            if [ -d "dist/mac/BlitzLauncher.app" ]; then
-              cp -r dist/mac/BlitzLauncher.app dist/mac-x64/BlitzLauncher-x64.app
-              cp -r dist/mac/BlitzLauncher.app dist/mac-arm64/BlitzLauncher-arm64.app
-            else
-              echo "No .app files found at all!"
-              find dist -type f -name "*.app" || echo "No .app files found by find"
-              ls -la dist/
-              exit 1
-            fi
-          fi
-          
-          # Remove any quarantine attributes again after copying
-          sudo xattr -cr dist/mac-x64/*.app || echo "No .app files found in x64 directory"
-          sudo xattr -cr dist/mac-arm64/*.app || echo "No .app files found in arm64 directory"
-          
-          # Debug - show all .app files
-          echo "All .app files found in dist and subdirectories:"
+          echo "=== All .app files/directories ==="
           find dist -name "*.app" -type d | sort
           
-          # Instead of moving, just ensure the quarantine attributes are removed from all .app files
+          # Remove quarantine attributes to bypass Gatekeeper
+          echo "=== Removing quarantine attributes from all .app bundles ==="
           sudo xattr -cr dist/**/*.app 2>/dev/null || echo "No .app files found with wildcards"
           sudo xattr -cr dist/*.app 2>/dev/null || echo "No .app files found directly in dist"
-          sudo xattr -cr dist/mac*/*.app 2>/dev/null || echo "No .app files found in mac subdirectories"
+          sudo xattr -cr dist/*/*.app 2>/dev/null || echo "No .app files found in subdirectories"
           
           # More debug info
-          echo "== Directory structure of dist: =="
-          ls -R dist/
+          echo "== Final directory structure of dist: =="
+          ls -R dist/ || echo "No dist directory"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           
@@ -119,23 +76,10 @@ jobs:
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: "BlitzLauncher-macos-x64"
+          name: "BlitzLauncher-macos"
           path: |
-            dist/*x64*.app
-            dist/mac*/*x64*.app
-            dist/*-x64.app
-            dist/mac*/*-x64.app
-          if-no-files-found: warn
-          
-      # Upload macOS arm64 artifact
-      - name: Upload macOS arm64 artifact
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: "BlitzLauncher-macos-arm64"
-          path: |
-            dist/*arm64*.app
-            dist/mac*/*arm64*.app
+            dist/**/*.app
+            dist/*.app
           if-no-files-found: warn
           
       - name: Package application (Linux)
