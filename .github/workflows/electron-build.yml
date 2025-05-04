@@ -99,11 +99,34 @@ jobs:
           sudo xattr -cr dist/mac-x64/*.app || echo "No .app files found in x64 directory"
           sudo xattr -cr dist/mac-arm64/*.app || echo "No .app files found in arm64 directory"
           
-          # Zip the .app files
-          cd dist/mac-x64 && zip -r ../../BlitzLauncher-x64.zip . && cd ../..
-          cd dist/mac-arm64 && zip -r ../../BlitzLauncher-arm64.zip . && cd ../..
+          # Move the .app files to dist for artifact collection (no need to zip)
+          if [ -d "dist/mac-x64/BlitzLauncher-x64.app" ]; then
+            mv dist/mac-x64/BlitzLauncher-x64.app dist/BlitzLauncher-x64.app
+          fi
+          
+          if [ -d "dist/mac-arm64/BlitzLauncher-arm64.app" ]; then
+            mv dist/mac-arm64/BlitzLauncher-arm64.app dist/BlitzLauncher-arm64.app
+          fi
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          
+      # Upload macOS x64 artifact
+      - name: Upload macOS x64 artifact
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: "BlitzLauncher-macos-x64"
+          path: dist/BlitzLauncher-x64.app
+          if-no-files-found: warn
+          
+      # Upload macOS arm64 artifact
+      - name: Upload macOS arm64 artifact
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: "BlitzLauncher-macos-arm64"
+          path: dist/BlitzLauncher-arm64.app
+          if-no-files-found: warn
           
       - name: Package application (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -111,13 +134,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           
-      - name: Upload artifacts
+      # Upload artifacts for Windows and Linux
+      - name: Upload Windows and Linux artifacts
+        if: matrix.os != 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: "BlitzLauncher-${{ matrix.os }}.${{ matrix.os == 'windows-latest' && 'exe' || matrix.os == 'macos-latest' && '' || 'AppImage' }}"
+          name: "BlitzLauncher-${{ matrix.os }}.${{ matrix.os == 'windows-latest' && 'exe' || 'AppImage' }}"
           path: |
             dist/*.exe
-            BlitzLauncher-*.zip
             dist/*.AppImage
             dist/*.deb
           if-no-files-found: warn 
