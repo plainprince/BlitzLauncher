@@ -1,5 +1,7 @@
 # Electron Minecraft Launcher
 
+[![Build Status](https://github.com/plainprince/BlitzLauncher/workflows/Build%20Electron%20Application/badge.svg)](https://github.com/plainprince/BlitzLauncher/actions)
+
 This is an Electron port of the BlitzLauncher Minecraft launcher originally built with JavaFX.
 
 ## Features
