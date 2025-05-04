@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com 'self';">
+  <title>BlitzLauncher</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="login-section" id="login-section">
+      <h1>BlitzLauncher</h1>
+      <button id="login-button" class="login-button">Login with Microsoft</button>
+      <p id="login-instruction"></p>
+      <a id="login-link" class="login-link" href="#"></a>
+    </div>
+    
+    <div class="main-section" id="main-section" style="display: none;">
+      <h1 class="title">BlitzClient</h1>
+      <button id="start-minecraft-button" class="start-button">
+        <span>Start</span>
+      </button>
+      <p id="status-message" class="status-message"></p>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html> 
