@@ -53,33 +53,55 @@ jobs:
           echo "=== Contents of dist directory ==="
           ls -la dist/ || echo "dist directory not found"
           
-          echo "=== All directories in dist ==="
-          find dist -type d | sort
+          # Check if the mac and mac-arm64 directories were created
+          if [ -d "dist/mac" ]; then
+            echo "=== Contents of dist/mac ==="
+            ls -la dist/mac/
+          else
+            echo "dist/mac directory not found!"
+          fi
           
-          echo "=== All .app files/directories ==="
-          find dist -name "*.app" -type d | sort
+          if [ -d "dist/mac-arm64" ]; then
+            echo "=== Contents of dist/mac-arm64 ==="
+            ls -la dist/mac-arm64/
+          else
+            echo "dist/mac-arm64 directory not found!"
+          fi
           
-          # Remove quarantine attributes to bypass Gatekeeper
-          echo "=== Removing quarantine attributes from all .app bundles ==="
-          sudo xattr -cr dist/**/*.app 2>/dev/null || echo "No .app files found with wildcards"
-          sudo xattr -cr dist/*.app 2>/dev/null || echo "No .app files found directly in dist"
-          sudo xattr -cr dist/*/*.app 2>/dev/null || echo "No .app files found in subdirectories"
+          # Remove quarantine attributes to bypass Gatekeeper for Intel build
+          if [ -d "dist/mac/BlitzLauncher.app" ]; then
+            echo "Removing quarantine attributes from Intel build"
+            sudo xattr -cr dist/mac/BlitzLauncher.app
+          else
+            echo "Intel build not found at expected location: dist/mac/BlitzLauncher.app"
+          fi
           
-          # More debug info
-          echo "== Final directory structure of dist: =="
-          ls -R dist/ || echo "No dist directory"
+          # Remove quarantine attributes to bypass Gatekeeper for ARM build
+          if [ -d "dist/mac-arm64/BlitzLauncher.app" ]; then
+            echo "Removing quarantine attributes from ARM build"
+            sudo xattr -cr dist/mac-arm64/BlitzLauncher.app
+          else
+            echo "ARM build not found at expected location: dist/mac-arm64/BlitzLauncher.app"
+          fi
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           
-      # Upload macOS x64 artifact
-      - name: Upload macOS x64 artifact
+      # Upload macOS Intel (x64) artifact
+      - name: Upload macOS Intel artifact
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: "BlitzLauncher-macos"
-          path: |
-            dist/**/*.app
-            dist/*.app
+          name: "BlitzLauncher-macos-intel"
+          path: dist/mac/BlitzLauncher.app
+          if-no-files-found: warn
+          
+      # Upload macOS ARM (Apple Silicon) artifact
+      - name: Upload macOS ARM artifact
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: "BlitzLauncher-macos-apple-silicon"
+          path: dist/mac-arm64/BlitzLauncher.app
           if-no-files-found: warn
           
       - name: Package application (Linux)
