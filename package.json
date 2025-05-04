@@ -35,7 +35,7 @@
       "category": "public.app-category.games",
       "icon": "src/assets/blitz_logo_color.png",
       "target": [
-        "dmg"
+        "app"
       ]
     },
     "win": {

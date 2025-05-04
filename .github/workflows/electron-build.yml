@@ -45,7 +45,30 @@ jobs:
         
       - name: Package application (macOS)
         if: matrix.os == 'macos-latest'
-        run: npm run package-mac
+        run: |
+          # Build .app files for both architectures
+          npm run package-mac
+          
+          # Remove quarantine attributes to bypass Gatekeeper
+          sudo xattr -cr dist/mac/*.app
+          
+          # Create separate directories for each architecture
+          mkdir -p dist/mac-x64
+          mkdir -p dist/mac-arm64
+          
+          # Move .app files to their respective directories
+          mv dist/mac/*-x64.app dist/mac-x64/ 2>/dev/null || :
+          mv dist/mac/*-arm64.app dist/mac-arm64/ 2>/dev/null || :
+          
+          # If architecture-specific .app files don't exist, use the universal one
+          if [ ! -d "dist/mac-x64/*.app" ] && [ ! -d "dist/mac-arm64/*.app" ]; then
+            cp -r dist/mac/*.app dist/mac-x64/
+            cp -r dist/mac/*.app dist/mac-arm64/
+          fi
+          
+          # Zip the .app files
+          cd dist/mac-x64 && zip -r ../../BlitzLauncher-x64.zip *.app && cd ../..
+          cd dist/mac-arm64 && zip -r ../../BlitzLauncher-arm64.zip *.app && cd ../..
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           
@@ -61,7 +84,7 @@ jobs:
           name: "BlitzLauncher-${{ matrix.os }}.${{ matrix.os == 'windows-latest' && 'exe' || matrix.os == 'macos-latest' && 'zip' || 'AppImage' }}"
           path: |
             dist/*.exe
-            dist/*.dmg
+            BlitzLauncher-*.zip
             dist/*.AppImage
             dist/*.deb
           if-no-files-found: warn 
