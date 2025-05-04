@@ -21,7 +21,8 @@
   },
   "devDependencies": {
     "electron": "^30.0.0",
-    "electron-builder": "^24.13.1"
+    "electron-builder": "^24.13.1",
+    "sharp": "^0.34.1"
   },
   "build": {
     "appId": "com.blitzlauncher.app",
@@ -29,16 +30,25 @@
     "mac": {
       "category": "public.app-category.games",
       "icon": "src/assets/blitz_logo_color.png",
-      "target": ["dmg"]
+      "target": [
+        "dmg"
+      ]
     },
     "win": {
       "icon": "src/assets/icon.ico",
-      "target": ["portable", "nsis"]
+      "target": [
+        "portable",
+        "nsis"
+      ]
     },
     "linux": {
       "category": "Game",
       "icon": "src/assets/blitz_logo_color.png",
-      "target": ["AppImage", "snap", "deb"]
+      "target": [
+        "AppImage",
+        "snap",
+        "deb"
+      ]
     },
     "directories": {
       "output": "dist"
