@@ -4,6 +4,9 @@ node_modules/
 dist/
 build/
 
+# Make sure we keep the package lock file
+!package-lock.json
+
 # IDE-specific files
 .idea/
 .vscode/
