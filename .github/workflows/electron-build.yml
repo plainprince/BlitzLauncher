@@ -25,10 +25,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          # Disable caching since lock file may not be available
           
       - name: Install dependencies
-        run: npm ci
+        # Use install instead of ci since lock file may not be available
+        run: npm install
           
       - name: Build application
         run: npm run build

@@ -1,14 +1,8 @@
-# Java/Maven artifacts
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
 # Electron/Node.js artifacts
 node_modules/
-electron-minecraft-launcher/node_modules/
-electron-minecraft-launcher/dist/
-electron-minecraft-launcher/build/
+node_modules/
+dist/
+build/
 
 # IDE-specific files
 .idea/
