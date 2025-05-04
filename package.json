@@ -10,7 +10,10 @@
     "package-mac": "electron-builder --mac --x64 --arm64",
     "package-linux": "electron-builder --linux --x64"
   },
-  "author": "",
+  "author": {
+    "name": "plainprince",
+    "email": "kummer.simeon@gmail.com"
+  },
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.7",
