@@ -99,14 +99,18 @@ jobs:
           sudo xattr -cr dist/mac-x64/*.app || echo "No .app files found in x64 directory"
           sudo xattr -cr dist/mac-arm64/*.app || echo "No .app files found in arm64 directory"
           
-          # Move the .app files to dist for artifact collection (no need to zip)
-          if [ -d "dist/mac-x64/BlitzLauncher-x64.app" ]; then
-            mv dist/mac-x64/BlitzLauncher-x64.app dist/BlitzLauncher-x64.app
-          fi
+          # Debug - show all .app files
+          echo "All .app files found in dist and subdirectories:"
+          find dist -name "*.app" -type d | sort
           
-          if [ -d "dist/mac-arm64/BlitzLauncher-arm64.app" ]; then
-            mv dist/mac-arm64/BlitzLauncher-arm64.app dist/BlitzLauncher-arm64.app
-          fi
+          # Instead of moving, just ensure the quarantine attributes are removed from all .app files
+          sudo xattr -cr dist/**/*.app 2>/dev/null || echo "No .app files found with wildcards"
+          sudo xattr -cr dist/*.app 2>/dev/null || echo "No .app files found directly in dist"
+          sudo xattr -cr dist/mac*/*.app 2>/dev/null || echo "No .app files found in mac subdirectories"
+          
+          # More debug info
+          echo "== Directory structure of dist: =="
+          ls -R dist/
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           
@@ -116,7 +120,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "BlitzLauncher-macos-x64"
-          path: dist/BlitzLauncher-x64.app
+          path: |
+            dist/*x64*.app
+            dist/mac*/*x64*.app
+            dist/*-x64.app
+            dist/mac*/*-x64.app
           if-no-files-found: warn
           
       # Upload macOS arm64 artifact
@@ -125,7 +133,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "BlitzLauncher-macos-arm64"
-          path: dist/BlitzLauncher-arm64.app
+          path: |
+            dist/*arm64*.app
+            dist/mac*/*arm64*.app
           if-no-files-found: warn
           
       - name: Package application (Linux)
