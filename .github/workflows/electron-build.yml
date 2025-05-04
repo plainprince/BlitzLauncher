@@ -68,55 +68,66 @@ jobs:
             echo "dist/mac-arm64 directory not found!"
           fi
           
-          # Create artifact directories
-          mkdir -p dist/intel
-          mkdir -p dist/apple-silicon
+          # Create completely separate artifact directories outside of the dist folder
+          mkdir -p macos-intel-artifact
+          mkdir -p macos-silicon-artifact
           
-          # Remove quarantine attributes and copy Intel build
+          # Process Intel build
           if [ -d "dist/mac/BlitzLauncher.app" ]; then
             echo "Removing quarantine attributes from Intel build"
             sudo xattr -cr dist/mac/BlitzLauncher.app
             
-            echo "Copying Intel build to artifact directory"
-            cp -r dist/mac/BlitzLauncher.app dist/intel/
+            echo "Copying Intel build to dedicated artifact directory"
+            cp -r dist/mac/BlitzLauncher.app macos-intel-artifact/
+            
+            # Create basic readme so users know what this is
+            echo "BlitzLauncher for macOS (Intel/x64)" > macos-intel-artifact/README.txt
           else
             echo "Intel build not found at expected location: dist/mac/BlitzLauncher.app"
+            echo "Build not found" > macos-intel-artifact/MISSING.txt
           fi
           
-          # Remove quarantine attributes and copy ARM build
+          # Process ARM build
           if [ -d "dist/mac-arm64/BlitzLauncher.app" ]; then
             echo "Removing quarantine attributes from ARM build"
             sudo xattr -cr dist/mac-arm64/BlitzLauncher.app
             
-            echo "Copying ARM build to artifact directory"
-            cp -r dist/mac-arm64/BlitzLauncher.app dist/apple-silicon/
+            echo "Copying ARM build to dedicated artifact directory"
+            cp -r dist/mac-arm64/BlitzLauncher.app macos-silicon-artifact/
+            
+            # Create basic readme so users know what this is
+            echo "BlitzLauncher for macOS (Apple Silicon/ARM64)" > macos-silicon-artifact/README.txt
           else
             echo "ARM build not found at expected location: dist/mac-arm64/BlitzLauncher.app"
+            echo "Build not found" > macos-silicon-artifact/MISSING.txt
           fi
+          
+          # Show what's in each artifact directory
+          echo "=== Intel artifact directory contents ==="
+          ls -la macos-intel-artifact/
+          
+          echo "=== Apple Silicon artifact directory contents ==="
+          ls -la macos-silicon-artifact/
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           
-      # Upload macOS Intel (x64) artifact
+      # Upload macOS Intel build as separate step with very explicit path
       - name: Upload macOS Intel artifact
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: "BlitzLauncher-macos-intel"
-          path: dist/intel/BlitzLauncher.app
+          path: macos-intel-artifact
           if-no-files-found: warn
-          compression-level: 0
-          overwrite: true
           
-      # Upload macOS ARM (Apple Silicon) artifact  
+      # Upload macOS ARM build as separate step with very explicit path
       - name: Upload macOS ARM artifact
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: "BlitzLauncher-macos-apple-silicon"
-          path: dist/apple-silicon/BlitzLauncher.app
+          path: macos-silicon-artifact
           if-no-files-found: warn
-          compression-level: 0
-          overwrite: true
           
       - name: Package application (Linux)
         if: matrix.os == 'ubuntu-latest'
