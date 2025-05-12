@@ -55,8 +55,8 @@ window.api.on('minecraft-closed', () => {
 
 // Listen for Minecraft status updates
 window.api.on('minecraft-status', (data) => {
-  if (data && data.message) {
-    statusMessage.textContent = data.message;
+  if (data) {
+    statusMessage.textContent = data.message || '';
   }
 });
 

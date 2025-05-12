@@ -116,29 +116,46 @@ class MinecraftStarter {
   }
 
   async downloadMods() {
-    const sodiumUrl = "https://cdn.modrinth.com/data/AANobbMI/versions/DA250htH/sodium-fabric-0.6.13%2Bmc1.21.5.jar";
-    const modsDir = path.join(path.dirname(this.INSTALL_DIR), 'minecraft/mods');
-    
-    try {
-      fs.mkdirSync(modsDir, { recursive: true });
-
-      const response = await axios({
-        method: 'GET',
-        url: sodiumUrl,
-        responseType: 'arraybuffer',
-        headers: {
-          'User-Agent': 'Node.js downloader'
-        }
-      });
-
-      const sodiumJarPath = path.join(modsDir, 'sodium-fabric-0.6.13+mc1.21.5.jar');
-      fs.writeFileSync(sodiumJarPath, response.data);
+    return new Promise(async (resolve, reject) => {
+      const sodiumUrl = "https://cdn.modrinth.com/data/AANobbMI/versions/DA250htH/sodium-fabric-0.6.13%2Bmc1.21.5.jar";
+      const irisUrl = "https://cdn.modrinth.com/data/YL57xq9U/versions/U6evbjd0/iris-fabric-1.8.11%2Bmc1.21.5.jar";
+      const modsDir = path.join(path.dirname(this.INSTALL_DIR), 'minecraft/mods');
       
-      return true;
-    } catch (error) {
-      console.error('Error downloading mods:', error);
-      throw error;
-    }
+      try {
+        fs.mkdirSync(modsDir, { recursive: true });
+
+        // Download Sodium
+        const sodiumResponse = await axios({
+          method: 'GET',
+          url: sodiumUrl,
+          responseType: 'arraybuffer',
+          headers: {
+            'User-Agent': 'Node.js downloader'
+          }
+        });
+
+        const sodiumJarPath = path.join(modsDir, 'sodium-fabric-0.6.13+mc1.21.5.jar');
+        fs.writeFileSync(sodiumJarPath, sodiumResponse.data);
+        
+        // Download Iris Shaders
+        const irisResponse = await axios({
+          method: 'GET',
+          url: irisUrl,
+          responseType: 'arraybuffer',
+          headers: {
+            'User-Agent': 'Node.js downloader'
+          }
+        });
+
+        const irisJarPath = path.join(modsDir, 'iris-fabric-1.8.11+mc1.21.5.jar');
+        fs.writeFileSync(irisJarPath, irisResponse.data);
+        
+        resolve(true);
+      } catch (error) {
+        console.error('Error downloading mods:', error);
+        reject(error);
+      }
+    })
   }
 
   run(uuid, name) {

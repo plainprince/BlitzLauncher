@@ -1,0 +1,22 @@
+name: Upload ResourcePack
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  upload-resourcepack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Upload resourcepack as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: resourcepack
+          path: resourcepack.zip
+          if-no-files-found: error 

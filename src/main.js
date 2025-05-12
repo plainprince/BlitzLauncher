@@ -187,7 +187,7 @@ ipcMain.handle('launch-minecraft', async (event, { uuid, name }) => {
       try {
         await minecraftStarter.downloadMods();
         // Clear the status message after mods have been downloaded
-        mainWindow.webContents.send('minecraft-status', { message: '' });
+        mainWindow.webContents.send('minecraft-status', { message: null });
       } catch (error) {
         console.error('Error downloading mods:', error);
         // Show error but let Minecraft continue running
