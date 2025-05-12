@@ -11,18 +11,34 @@ jobs:
   upload-resourcepack:
     runs-on: ubuntu-latest
     steps:
+      # First install Git LFS
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+      
+      # Properly checkout with LFS
       - name: Checkout repository
         uses: actions/checkout@v3
-        
-      - name: Verify resourcepack.zip exists
+        with:
+          lfs: true
+          fetch-depth: 0
+      
+      # Pull LFS files explicitly
+      - name: Pull LFS files
         run: |
+          git lfs install
+          git lfs pull
+          
+      # Verify the file exists
+      - name: Verify resourcepack.zip
+        run: |
+          echo "Listing all files:"
           ls -la
-          if [ -f "resourcepack.zip" ]; then
-            echo "resourcepack.zip exists!"
-          else
-            echo "resourcepack.zip NOT FOUND!"
-            exit 1
-          fi
+          echo "LFS files:"
+          git lfs ls-files
+          echo "Checking resourcepack.zip:"
+          ls -la resourcepack.zip || echo "File not found"
       
       - name: Upload resourcepack as artifact
         uses: actions/upload-artifact@v3
