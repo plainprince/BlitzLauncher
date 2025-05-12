@@ -36,3 +36,14 @@ pids
 
 # BlitzClient runtime data (dev)
 minecraft
+
+# Node dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build/dist directories
+/dist
+/build

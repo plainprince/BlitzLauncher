@@ -11,8 +11,10 @@ jobs:
   upload-resourcepack:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repository with LFS
         uses: actions/checkout@v3
+        with:
+          lfs: true
       
       - name: Upload resourcepack as artifact
         uses: actions/upload-artifact@v3
