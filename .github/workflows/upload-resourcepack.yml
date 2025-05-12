@@ -29,20 +29,28 @@ jobs:
         run: |
           git lfs install
           git lfs pull
-          
+          echo "Verifying LFS files:"
+          git lfs ls-files
+          ls -lah resourcepack.zip || echo "resourcepack.zip not downloaded"
+      
+      # Force download LFS files if necessary
+      - name: Force download LFS files
+        run: |
+          git lfs fetch --all
+          git lfs checkout
+          ls -lah resourcepack.zip || echo "resourcepack.zip still not downloaded"
+      
       # Verify the file exists
       - name: Verify resourcepack.zip
         run: |
-          echo "Listing all files:"
-          ls -la
-          echo "LFS files:"
-          git lfs ls-files
-          echo "Checking resourcepack.zip:"
-          ls -la resourcepack.zip || echo "File not found"
+          if [ ! -f resourcepack.zip ]; then
+            echo "Error: resourcepack.zip not found!"
+            exit 1
+          fi
       
       - name: Upload resourcepack as artifact
         uses: actions/upload-artifact@v3
         with:
           name: resourcepack
           path: resourcepack.zip
-          if-no-files-found: error 
+          if-no-files-found: error
