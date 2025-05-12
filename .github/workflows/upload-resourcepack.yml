@@ -11,10 +11,18 @@ jobs:
   upload-resourcepack:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository with LFS
+      - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          lfs: true
+        
+      - name: Verify resourcepack.zip exists
+        run: |
+          ls -la
+          if [ -f "resourcepack.zip" ]; then
+            echo "resourcepack.zip exists!"
+          else
+            echo "resourcepack.zip NOT FOUND!"
+            exit 1
+          fi
       
       - name: Upload resourcepack as artifact
         uses: actions/upload-artifact@v3
