@@ -8,10 +8,11 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Minecraft Launcher Script")
     parser.add_argument('--uuid', type=str, required=True, help='MCID (UUID) der Person')
     parser.add_argument('--name', type=str, required=True, help='Name des Spielers')
+    parser.add_argument('--token', type=str, required=False, help='Access Token für Online-Server')
     parser.add_argument('--launch-only', action='store_true', help='Nur Spiel starten, keine Installation')
     return parser.parse_args()
 
-# Zufälliges Token generieren (kann auch immer 0 sein, wenn gewünscht)
+# Zufälliges Token generieren (nur als Fallback für Offline-Modus)
 def generate_token():
     return str(random.randint(0, 1000000))  # Beispiel für zufälliges Token, hier eine Zufallszahl
 
@@ -32,8 +33,14 @@ def main():
     options = {
         "username": args.name,
         "uuid": args.uuid,
-        "token": generate_token(),  # Token generieren
+        "token": args.token if args.token else generate_token(),  # Verwende echten Token oder Fallback
     }
+
+    # Log token status for debugging
+    if args.token:
+        print(f"Using fresh Microsoft access token for online server support")
+    else:
+        print(f"No access token provided - using offline mode (cracked account)")
 
     # Minecraft-Startbefehl holen
     minecraft_command = minecraft_launcher_lib.command.get_minecraft_command("fabric-loader-0.16.14-1.21.5", minecraft_directory, options)

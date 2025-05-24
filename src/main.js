@@ -101,7 +101,8 @@ ipcMain.handle('login-microsoft', async () => {
       // Extract necessary data from the Minecraft profile
       const accountData = {
         uuid: minecraftProfile.profile.id,
-        name: minecraftProfile.profile.name
+        name: minecraftProfile.profile.name,
+        refreshToken: xbox.save() // Save refresh token instead of access token
       };
       
       // Save account data - ensure directory exists first
@@ -138,7 +139,11 @@ ipcMain.handle('login-cracked', async () => {
   const uuid = uuidv4();
   const name = "dev";
   
-  const accountData = { uuid, name };
+  const accountData = { 
+    uuid, 
+    name,
+    refreshToken: null // Cracked accounts don't have refresh tokens
+  };
   
   // Save account data - ensure directory exists first
   const accountsDirectory = path.dirname(INSTALL_DIR);
@@ -157,6 +162,33 @@ ipcMain.handle('login-cracked', async () => {
 ipcMain.handle('launch-minecraft', async (event, { uuid, name }) => {
   try {
     const minecraftStarter = new MinecraftStarter();
+    
+    // Get fresh access token if this is a Microsoft account
+    let accessToken = null;
+    const accountsPath = path.join(path.dirname(INSTALL_DIR), 'accounts.json');
+    
+    if (fs.existsSync(accountsPath)) {
+      try {
+        const accountData = JSON.parse(fs.readFileSync(accountsPath, 'utf8'));
+        
+        // Check if this is a Microsoft account with a refresh token
+        if (accountData.refreshToken) {
+          try {
+            // Use refresh token to get fresh access token
+            const authManager = new Auth("select_account");
+            const xbox = await authManager.refresh(accountData.refreshToken);
+            const minecraftProfile = await xbox.getMinecraft();
+            accessToken = minecraftProfile.access_token;
+            console.log('Got fresh access token using refresh token');
+          } catch (error) {
+            console.warn('Failed to refresh access token, launching in offline mode:', error);
+            // Continue without token - will work for offline servers
+          }
+        }
+      } catch (error) {
+        console.warn('Could not load account data:', error);
+      }
+    }
     
     // Check if BlitzClient directory exists
     const blitzClientPath = path.dirname(INSTALL_DIR);
@@ -177,7 +209,7 @@ ipcMain.handle('launch-minecraft', async (event, { uuid, name }) => {
     }
     
     // Launch Minecraft
-    const minecraftProcess = minecraftStarter.run(uuid, name);
+    const minecraftProcess = minecraftStarter.run(uuid, name, accessToken);
     
     // If minecraft directory doesn't exist, download mods after startup
     if (!fs.existsSync(minecraftPath)) {

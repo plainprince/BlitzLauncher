@@ -300,7 +300,7 @@ class MinecraftStarter {
     }
   }
 
-  async run(uuid, name) {
+  async run(uuid, name, accessToken) {
     try {
       const installDir = path.resolve(this.INSTALL_DIR);
       const parentDir = path.dirname(installDir);
@@ -316,6 +316,12 @@ class MinecraftStarter {
         '--name',
         name ? name : 'Whyareyoureadingthis'
       ];
+
+      // Add access token if available
+      if (accessToken) {
+        args.push('--token');
+        args.push(accessToken);
+      }
 
       // If minecraft directory exists, append --launch-only
       if (fs.existsSync(minecraftDir)) {
