@@ -322,12 +322,22 @@ class MinecraftStarter {
         args.push('--launch-only');
       }
 
-      // Spawn the process
-      const process = spawn(args[0], args.slice(1), {
+      // Spawn options to prevent cmd window on Windows
+      const spawnOptions = {
         cwd: parentDir,
-        stdio: 'inherit',
         detached: true
-      });
+      };
+
+      // On Windows, hide the console window
+      if (process.platform === 'win32') {
+        spawnOptions.windowsHide = true;
+        spawnOptions.stdio = 'ignore';
+      } else {
+        spawnOptions.stdio = 'inherit';
+      }
+
+      // Spawn the process
+      const process = spawn(args[0], args.slice(1), spawnOptions);
 
       process.on('error', (error) => {
         console.error(`Error running executable: ${error.message}`);
