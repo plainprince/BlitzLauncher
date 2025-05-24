@@ -5,6 +5,15 @@ const { spawn } = require('child_process');
 const axios = require('axios');
 const extract = require('extract-zip');
 
+async function fileExists(path) {
+  try {
+    await access(path, constants.F_OK);
+    return true;  // Datei existiert
+  } catch {
+    return false; // Datei existiert nicht
+  }
+}
+
 class MinecraftStarter {
   constructor() {
     this.INSTALL_DIR = this.getAppDataDirectory() + path.sep + 'BlitzClient' + path.sep + 'client-installer';
@@ -158,7 +167,140 @@ class MinecraftStarter {
     })
   }
 
-  run(uuid, name) {
+  async downloadResourcepack() {
+    return new Promise(async (resolve, reject) => {
+      const resourcepackUrl = "https://blitzclient.netlify.app/resourcepack.zip";
+      const parentDir = path.dirname(this.INSTALL_DIR);
+      console.log('Parent directory:', parentDir);
+
+      const resourcepacksDir = path.join(parentDir, 'minecraft/resourcepacks');
+      const resourcepackPath = path.join(resourcepacksDir, 'resourcepack.zip');
+      
+      console.log('Download info:', {
+        url: resourcepackUrl,
+        parentDir: parentDir,
+        resourcepacksDir: resourcepacksDir,
+        resourcepackPath: resourcepackPath
+      });
+      
+      try {
+        // Check if resourcepack already exists
+        if (fs.existsSync(resourcepackPath)) {
+          console.log('Resourcepack already exists, skipping download');
+          resolve(true);
+          return;
+        }
+
+        fs.mkdirSync(resourcepacksDir, { recursive: true });
+        console.log('Created resourcepacks directory:', resourcepacksDir);
+
+        // Download Resourcepack
+        console.log('Starting download from:', resourcepackUrl);
+        const resourcepackResponse = await axios({
+          method: 'GET',
+          url: resourcepackUrl,
+          responseType: 'arraybuffer',
+          headers: {
+            'User-Agent': 'Node.js downloader'
+          }
+        });
+
+        console.log('Download completed, response size:', resourcepackResponse.data.length);
+        fs.writeFileSync(resourcepackPath, resourcepackResponse.data);
+        console.log('Resourcepack saved to:', resourcepackPath);
+        
+        // Verify the file was written
+        if (fs.existsSync(resourcepackPath)) {
+          const stats = fs.statSync(resourcepackPath);
+          console.log('Resourcepack file size:', stats.size, 'bytes');
+        }
+        
+        console.log('Resourcepack downloaded successfully');
+        resolve(true);
+      } catch (error) {
+        console.error('Error downloading resourcepack:', error);
+        reject(error);
+      }
+    });
+  }
+
+  async configureResourcepack() {
+    try {
+      const parentDir = path.dirname(this.INSTALL_DIR);
+      const optionsPath = path.join(parentDir, 'minecraft/options.txt');
+      const resourcepacksDir = path.join(parentDir, 'minecraft/resourcepacks');
+      const resourcepackPath = path.join(resourcepacksDir, 'resourcepack.zip');
+      
+      console.log('Configure resourcepack info:', {
+        parentDir: parentDir,
+        optionsPath: optionsPath,
+        resourcepackPath: resourcepackPath,
+        resourcepackExists: fs.existsSync(resourcepackPath),
+        optionsExists: fs.existsSync(optionsPath)
+      });
+      
+      // Check if resourcepack exists
+      if (!(await fileExists(resourcepackPath))) {
+        console.log('Resourcepack not found, skipping configuration');
+        return false;
+      }
+
+      let optionsContent = '';
+      let resourcePacksLine = 'resourcePacks:["fabric","file/resourcepack.zip"]';
+      
+      // Read existing options.txt if it exists
+      if (await fileExists(optionsPath)) {
+        optionsContent = fs.readFileSync(optionsPath, 'utf8');
+        console.log('Existing options.txt content length:', optionsContent.length);
+        
+        // Check if resourcePacks line already exists
+        const lines = optionsContent.split('\n');
+        let resourcePackLineIndex = -1;
+        
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].startsWith('resourcePacks:')) {
+            resourcePackLineIndex = i;
+            console.log('Found existing resourcePacks line at index', i, ':', lines[i]);
+            break;
+          }
+        }
+        
+        if (resourcePackLineIndex !== -1) {
+          // Update existing resourcePacks line
+          const currentLine = lines[resourcePackLineIndex];
+          // Parse the current resourcePacks array and add our pack if not already present
+          if (!currentLine.includes('file/resourcepack.zip')) {
+            // Simple approach: replace the closing bracket with our pack
+            const updatedLine = currentLine.replace(/]$/, ',"file/resourcepack.zip"]');
+            lines[resourcePackLineIndex] = updatedLine;
+            console.log('Updated resourcePacks line to:', updatedLine);
+          } else {
+            console.log('Resourcepack already configured in options.txt');
+          }
+          optionsContent = lines.join('\n');
+        } else {
+          // Add resourcePacks line
+          console.log('Adding new resourcePacks line');
+          optionsContent += '\n' + resourcePacksLine + '\n';
+        }
+      } else {
+        // Create new options.txt with resourcepack
+        console.log('Creating new options.txt with resourcepack');
+        optionsContent = resourcePacksLine + '\n';
+      }
+      
+      // Write the updated options.txt
+      console.log('Writing options.txt to:', optionsPath);
+      fs.writeFileSync(optionsPath, optionsContent);
+      console.log('Resourcepack configured in options.txt successfully');
+      return true;
+    } catch (error) {
+      console.error('Error configuring resourcepack:', error);
+      return false;
+    }
+  }
+
+  async run(uuid, name) {
     try {
       const installDir = path.resolve(this.INSTALL_DIR);
       const parentDir = path.dirname(installDir);

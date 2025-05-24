@@ -186,6 +186,8 @@ ipcMain.handle('launch-minecraft', async (event, { uuid, name }) => {
       
       try {
         await minecraftStarter.downloadMods();
+        await minecraftStarter.downloadResourcepack();
+        await minecraftStarter.configureResourcepack();
         // Clear the status message after mods have been downloaded
         mainWindow.webContents.send('minecraft-status', { message: null });
       } catch (error) {
