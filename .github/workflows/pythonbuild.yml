@@ -27,7 +27,7 @@ jobs:
         run: pip install minecraft-launcher-lib==7.1
 
       - name: Build executable with PyInstaller
-        run: pyinstaller -y --onefile --name os launch.py
+        run: pyinstaller -y --onefile --name os launch.py --noconsole
 
       - name: Upload executable
         uses: actions/upload-artifact@v4

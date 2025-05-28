@@ -334,13 +334,7 @@ class MinecraftStarter {
         detached: true
       };
 
-      // On Windows, prevent cmd window from showing without hiding Minecraft
-      if (process.platform === 'win32') {
-        spawnOptions.shell = false; // Don't use shell, prevents cmd window
-        spawnOptions.stdio = ['ignore', 'ignore', 'ignore']; // Suppress stdio but allow windows
-      } else {
-        spawnOptions.stdio = 'inherit';
-      }
+      spawnOptions.stdio = 'inherit';
 
       // Spawn the process
       const process = spawn(args[0], args.slice(1), spawnOptions);
