@@ -170,24 +170,59 @@ ipcMain.handle('launch-minecraft', async (event, { uuid, name }) => {
     if (fs.existsSync(accountsPath)) {
       try {
         const accountData = JSON.parse(fs.readFileSync(accountsPath, 'utf8'));
+        console.log('Loaded account data:', { uuid: accountData.uuid, name: accountData.name, hasRefreshToken: !!accountData.refreshToken });
         
         // Check if this is a Microsoft account with a refresh token
         if (accountData.refreshToken) {
           try {
+            console.log('Attempting to refresh access token...');
             // Use refresh token to get fresh access token
             const authManager = new Auth("select_account");
             const xbox = await authManager.refresh(accountData.refreshToken);
             const minecraftProfile = await xbox.getMinecraft();
             accessToken = minecraftProfile.access_token;
-            console.log('Got fresh access token using refresh token');
+            
+            console.log('Successfully refreshed access token');
+            console.log('Token length:', accessToken ? accessToken.length : 0);
+            console.log('Profile info:', {
+              id: minecraftProfile.profile.id,
+              name: minecraftProfile.profile.name
+            });
+            
+            // Validate that the token is not empty or malformed
+            if (!accessToken || accessToken.length < 10) {
+              throw new Error('Received invalid or empty access token');
+            }
+            
+            // Update the refresh token in case it changed
+            const updatedAccountData = {
+              ...accountData,
+              refreshToken: xbox.save()
+            };
+            fs.writeFileSync(accountsPath, JSON.stringify(updatedAccountData, null, 2));
+            console.log('Updated refresh token in account data');
+            
           } catch (error) {
-            console.warn('Failed to refresh access token, launching in offline mode:', error);
-            // Continue without token - will work for offline servers
+            console.error('Failed to refresh access token:', error);
+            console.warn('Launching in offline mode due to token refresh failure');
+            accessToken = null;
+            
+            // If refresh fails, the account might need re-authentication
+            // You could optionally clear the refresh token here or prompt for re-login
+            if (error.message && error.message.includes('invalid_grant')) {
+              console.warn('Refresh token is invalid - user may need to re-authenticate');
+              // Send a message to the renderer to prompt for re-authentication
+              mainWindow.webContents.send('auth-expired');
+            }
           }
+        } else {
+          console.log('No refresh token found - this is a cracked account or offline mode');
         }
       } catch (error) {
         console.warn('Could not load account data:', error);
       }
+    } else {
+      console.log('No account data file found');
     }
     
     // Check if BlitzClient directory exists
@@ -251,4 +286,43 @@ ipcMain.handle('launch-minecraft', async (event, { uuid, name }) => {
 ipcMain.handle('open-external-link', async (event, url) => {
   await shell.openExternal(url);
   return true;
+});
+
+ipcMain.handle('re-authenticate', async () => {
+  try {
+    // Clear existing account data
+    const accountsPath = path.join(path.dirname(INSTALL_DIR), 'accounts.json');
+    if (fs.existsSync(accountsPath)) {
+      fs.unlinkSync(accountsPath);
+    }
+    
+    // Create a new Auth manager with select_account prompt
+    const authManager = new Auth("select_account");
+    
+    // Launch using 'electron' as the GUI framework
+    const xbox = await authManager.launch("electron");
+    
+    // Get the Minecraft profile
+    const minecraftProfile = await xbox.getMinecraft();
+    
+    // Extract necessary data from the Minecraft profile
+    const accountData = {
+      uuid: minecraftProfile.profile.id,
+      name: minecraftProfile.profile.name,
+      refreshToken: xbox.save()
+    };
+    
+    // Save account data
+    const accountsDirectory = path.dirname(INSTALL_DIR);
+    if (!fs.existsSync(accountsDirectory)) {
+      fs.mkdirSync(accountsDirectory, { recursive: true });
+    }
+    
+    fs.writeFileSync(accountsPath, JSON.stringify(accountData, null, 2));
+    
+    return accountData;
+  } catch (error) {
+    console.error('Re-authentication error:', error);
+    throw error;
+  }
 }); 

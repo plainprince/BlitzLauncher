@@ -4,6 +4,7 @@ const os = require('os');
 const { spawn } = require('child_process');
 const axios = require('axios');
 const extract = require('extract-zip');
+const { access, constants } = require('fs').promises;
 
 async function fileExists(path) {
   try {
@@ -321,6 +322,9 @@ class MinecraftStarter {
       if (accessToken) {
         args.push('--token');
         args.push(accessToken);
+        console.log('Launching with access token for online server support');
+      } else {
+        console.log('Launching without access token (offline/cracked mode)');
       }
 
       // If minecraft directory exists, append --launch-only
@@ -334,7 +338,19 @@ class MinecraftStarter {
         detached: true
       };
 
-      spawnOptions.stdio = 'inherit';
+      // Configure stdio based on platform to hide command prompt
+      if (process.platform === 'win32') {
+        // On Windows, use 'ignore' to completely hide the console window
+        spawnOptions.stdio = 'ignore';
+        // Also set windowsHide to true for extra protection
+        spawnOptions.windowsHide = true;
+      } else {
+        // On macOS and Linux, use 'pipe' to capture output without showing terminal
+        spawnOptions.stdio = ['ignore', 'pipe', 'pipe'];
+      }
+
+      console.log('Launching Minecraft with args:', args);
+      console.log('Spawn options:', spawnOptions);
 
       // Spawn the process
       const process = spawn(args[0], args.slice(1), spawnOptions);
@@ -342,6 +358,19 @@ class MinecraftStarter {
       process.on('error', (error) => {
         console.error(`Error running executable: ${error.message}`);
       });
+
+      // On non-Windows platforms, handle stdout/stderr if they exist
+      if (process.stdout) {
+        process.stdout.on('data', (data) => {
+          console.log(`Minecraft stdout: ${data}`);
+        });
+      }
+
+      if (process.stderr) {
+        process.stderr.on('data', (data) => {
+          console.error(`Minecraft stderr: ${data}`);
+        });
+      }
 
       process.unref();
       return process;

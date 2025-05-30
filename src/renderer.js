@@ -60,6 +60,17 @@ window.api.on('minecraft-status', (data) => {
   }
 });
 
+// Listen for authentication expiration
+window.api.on('auth-expired', () => {
+  showAlert('warning', 'Session Expired', 'Your Microsoft account session has expired. Please re-authenticate to join online servers.');
+  
+  // Optionally, you could automatically trigger re-authentication
+  // or show a button to re-authenticate
+  if (confirm('Would you like to re-authenticate now?')) {
+    handleReAuthentication();
+  }
+});
+
 // Functions
 function showAlert(type, title, message) {
   // Simple alert using native dialog
@@ -123,6 +134,27 @@ async function handleCrackedLogin() {
     console.error('Cracked login error:', error);
     loginInstruction.textContent = '';
     showAlert('error', 'Login Error', error.message || 'Failed to login. Please try again.');
+  }
+}
+
+async function handleReAuthentication() {
+  try {
+    statusMessage.textContent = 'Re-authenticating...';
+    
+    const data = await window.api.reAuthenticate();
+    
+    userData = {
+      uuid: data.uuid,
+      name: data.name
+    };
+    
+    statusMessage.textContent = '';
+    showAlert('info', 'Re-authentication Successful', `Welcome back, ${data.name}!`);
+    
+  } catch (error) {
+    console.error('Re-authentication error:', error);
+    statusMessage.textContent = '';
+    showAlert('error', 'Re-authentication Error', error.message || 'Failed to re-authenticate. Please try again.');
   }
 }
 

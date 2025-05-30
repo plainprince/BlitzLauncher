@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld(
     // Account management
     loginMicrosoft: () => ipcRenderer.invoke('login-microsoft'),
     loginCracked: () => ipcRenderer.invoke('login-cracked'),
+    reAuthenticate: () => ipcRenderer.invoke('re-authenticate'),
     
     // Minecraft launch
     launchMinecraft: (data) => ipcRenderer.invoke('launch-minecraft', data),
@@ -17,7 +18,7 @@ contextBridge.exposeInMainWorld(
     // IPC event listeners
     on: (channel, callback) => {
       // Whitelist of valid channels
-      const validChannels = ['account-loaded', 'device-code', 'minecraft-closed', 'minecraft-status'];
+      const validChannels = ['account-loaded', 'device-code', 'minecraft-closed', 'minecraft-status', 'auth-expired'];
       if (validChannels.includes(channel)) {
         // Remove the event listener when it's no longer needed
         const subscription = (event, ...args) => callback(...args);
