@@ -334,23 +334,25 @@ class MinecraftStarter {
 
       // Spawn options to prevent cmd window on Windows
       const spawnOptions = {
-        cwd: parentDir,
-        detached: true
+        cwd: parentDir
       };
 
       // Configure stdio based on platform to hide command prompt
       if (process.platform === 'win32') {
-        // On Windows, use 'ignore' to completely hide the console window
-        spawnOptions.stdio = 'ignore';
-        // Also set windowsHide to true for extra protection
-        spawnOptions.windowsHide = true;
+        // On Windows, try conservative approach - just change detachment and shell
+        spawnOptions.stdio = ['ignore', 'pipe', 'pipe'];
+        spawnOptions.shell = false;
+        spawnOptions.detached = false;
       } else {
-        // On macOS and Linux, use 'pipe' to capture output without showing terminal
+        // On macOS and Linux, use detached and pipe
+        spawnOptions.detached = true;
         spawnOptions.stdio = ['ignore', 'pipe', 'pipe'];
       }
 
       console.log('Launching Minecraft with args:', args);
       console.log('Spawn options:', spawnOptions);
+      console.log('Platform:', process.platform);
+      console.log('Access token provided:', !!accessToken);
 
       // Spawn the process
       const process = spawn(args[0], args.slice(1), spawnOptions);
@@ -359,7 +361,11 @@ class MinecraftStarter {
         console.error(`Error running executable: ${error.message}`);
       });
 
-      // On non-Windows platforms, handle stdout/stderr if they exist
+      process.on('spawn', () => {
+        console.log('Process spawned successfully');
+      });
+
+      // On all platforms, handle stdout/stderr if they exist
       if (process.stdout) {
         process.stdout.on('data', (data) => {
           console.log(`Minecraft stdout: ${data}`);
@@ -371,6 +377,14 @@ class MinecraftStarter {
           console.error(`Minecraft stderr: ${data}`);
         });
       }
+
+      process.on('close', (code, signal) => {
+        console.log(`Process closed with code ${code} and signal ${signal}`);
+      });
+
+      process.on('exit', (code, signal) => {
+        console.log(`Process exited with code ${code} and signal ${signal}`);
+      });
 
       process.unref();
       return process;
